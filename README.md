@@ -64,3 +64,7 @@ composer dump-autoload
 
 # Jalankan ulang migration dari nol (kalau lagi revisi banyak)
 php artisan migrate:fresh --seed
+
+link untuk lu AI
+
+https://www.perplexity.ai/search/cara-cek-version-php-yang-ada-NgQ2n6JhTTK7t7LuZBxOBw#58
