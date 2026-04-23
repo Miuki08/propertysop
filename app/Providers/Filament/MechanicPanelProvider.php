@@ -37,8 +37,11 @@ class MechanicPanelProvider extends PanelProvider
             ])
             ->discoverWidgets(in: app_path('Filament/Mechanic/Widgets'), for: 'App\\Filament\\Mechanic\\Widgets')
             ->widgets([
-                Widgets\AccountWidget::class,
-                Widgets\FilamentInfoWidget::class,
+                // Widgets\AccountWidget::class,
+                \App\Filament\Mechanic\Widgets\MechanicBookingStats::class,
+                \App\Filament\Mechanic\Widgets\MechanicPendingBookings::class,
+                \App\Filament\Mechanic\Widgets\MechanicFinishedBookings::class,
+                // Widgets\FilamentInfoWidget::class,
             ])
             ->middleware([
                 EncryptCookies::class,
