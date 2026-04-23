@@ -140,10 +140,12 @@ class BookingResource extends Resource
             ->filters([
                 Tables\Filters\SelectFilter::make('status')
                     ->options([
-                        'pending' => 'Pending',
-                        'in_progress' => 'In Progress',
-                        'completed' => 'Completed',
-                        'cancelled' => 'Cancelled',
+                        'waiting_queue'     => 'Menunggu Antrean',
+                        'checking'          => 'Dicek',
+                        'waiting_sparepart' => 'Menunggu Sparepart',
+                        'processing'        => 'Dikerjakan',
+                        'finished'          => 'Selesai',
+                        'cancelled'         => 'Dibatalkan',
                     ]),
             ])
             ->actions([

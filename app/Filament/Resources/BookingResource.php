@@ -14,6 +14,8 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Laravel\Pail\Options;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Filament\Tables\Actions\Action;
 
 class BookingResource extends Resource
 {
@@ -56,7 +58,17 @@ class BookingResource extends Resource
                     ->maxLength(100),
                 Forms\Components\TextInput::make('device_model')
                     ->label('Model Device')
-                    ->maxLength(100),
+                    ->maxLength(100),                
+                Forms\Components\Select::make('service_fee')
+                    ->label('Biaya Jasa Servis')
+                    ->options([
+                        50000  => 'Rp 50.000 - Cek / Diagnosa',
+                        100000 => 'Rp 100.000 - Servis Ringan',
+                        150000 => 'Rp 150.000 - Servis Sedang',
+                        250000 => 'Rp 250.000 - Servis Berat',
+                    ])
+                    ->native(false)
+                    ->required(),
                 Forms\Components\Textarea::make('problem_description')
                     ->label('Problem Description')
                     ->rows(3)
@@ -136,12 +148,22 @@ class BookingResource extends Resource
                     ->limit(40)
                     ->tooltip(fn ($record) => $record->problem_description)
                     ->searchable(),
+                
+                Tables\Columns\TextColumn::make('service_fee')
+                    ->label('Service Fee')
+                    ->money('IDR')
+                    ->sortable(),
+                    
+                // Tables\Columns\TextColumn::make('finished_at')
+                //     ->label('Finished At')
+                //     ->dateTime('d/m/Y H:i')
+                //     ->sortable()
+                //     ->toggleable(),
 
-                Tables\Columns\TextColumn::make('finished_at')
-                    ->label('Finished At')
-                    ->dateTime('d/m/Y H:i')
-                    ->sortable()
-                    ->toggleable(),
+                 Tables\Columns\TextColumn::make('service_warranty_until')
+                    ->label('Garansi Servis s/d')
+                    ->date('d/m/Y')
+                    ->sortable(),
 
                 Tables\Columns\TextColumn::make('notes')
                     ->label('Notes')
@@ -165,10 +187,12 @@ class BookingResource extends Resource
             ->filters([
                  Tables\Filters\SelectFilter::make('status')
                     ->options([
-                        'pending' => 'Pending',
-                        'in_progress' => 'In Progress',
-                        'completed' => 'Completed',
-                        'cancelled' => 'Cancelled',
+                        'waiting_queue'     => 'Menunggu Antrean',
+                        'checking'          => 'Dicek',
+                        'waiting_sparepart' => 'Menunggu Sparepart',
+                        'processing'        => 'Dikerjakan',
+                        'finished'          => 'Selesai',
+                        'cancelled'         => 'Dibatalkan',
                     ]),
                 Tables\Filters\Filter::make('booking_date')
                     ->form([
@@ -183,6 +207,30 @@ class BookingResource extends Resource
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
+                Action::make('download_invoice')
+                    ->label('')
+                    ->icon('heroicon-m-arrow-down-tray')
+                    ->action(function (Booking $record) {
+                        $record->load('customer', 'bookingSpareparts.sparepart');
+
+                        $data = [
+                            'booking'           => $record,
+                            'customer'          => $record->customer,
+                            'spareparts'        => $record->bookingSpareparts,
+                            'service_fee'       => $record->service_fee,
+                            'service_warranty'  => $record->service_warranty_until,
+                            'total_spareparts'  => $record->bookingSpareparts->sum('subtotal'),
+                        ];
+
+                        $data['grand_total'] = $data['total_spareparts'] + $data['service_fee'];
+
+                        $pdf = Pdf::loadView('invoices.booking', $data);
+
+                        return response()->streamDownload(
+                            fn () => print($pdf->output()),
+                            'nota-booking-' . $record->id . '.pdf'
+                        );
+                    })
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

@@ -41,6 +41,7 @@ class AdminPanelProvider extends PanelProvider
                 //Widgets\AccountWidget::class,
                 // Widgets\FilamentInfoWidget::class,
                 \App\Filament\Widgets\BookingStats::class,
+                \App\Filament\Widgets\ProfitStats::class,
                 \App\Filament\Widgets\SparepartStockAlert::class,
             ])
             ->middleware([

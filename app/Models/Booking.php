@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Carbon\Carbon;
 
 class Booking extends Model
 {
@@ -19,6 +20,7 @@ class Booking extends Model
         'status',
         'booking_date',
         'finished_at',
+        'service_warranty_until',
         'service_fee',
         'notes',
     ];
@@ -26,6 +28,7 @@ class Booking extends Model
     protected $casts = [
         'booking_date' => 'date',
         'finished_at' => 'datetime',
+        'service_warranty_until'   => 'date',
     ];
 
     public function customer() {
@@ -43,6 +46,23 @@ class Booking extends Model
     public function spareparts()
     {
         return $this->belongsToMany(Sparepart::class, 'booking_spareparts')->withPivot(['qty', 'price', 'cost_price', 'subtotal']);
+    }
+
+    protected static function booted(): void
+    {
+        static::saving(function (Booking $booking) {
+            if (! $booking->finished_at) {
+                return;
+            }
+
+            if (empty($booking->service_warranty_until)) {
+                $base = $booking->finished_at instanceof Carbon
+                    ? $booking->finished_at
+                    : Carbon::parse($booking->finished_at);
+
+                $booking->service_warranty_until = $base->copy()->addDays(30);
+            }
+        });
     }
 
 }

@@ -8,6 +8,8 @@ use App\Models\Purchase;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
+use Filament\Tables\Actions\Action;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
@@ -60,6 +62,10 @@ class PurchaseResource extends Resource
                     ->label('Total')
                     ->money('IDR')
                     ->sortable(),
+                Tables\Columns\TextColumn::make('sparepart_warranty_until')
+                    ->label('Garansi Sparepart s/d')
+                    ->date('d/m/Y')
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime('d/m/Y H:i')
                     ->label('Create At')
@@ -84,6 +90,27 @@ class PurchaseResource extends Resource
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
+                    Action::make('download_invoice')
+                        ->label('')
+                        ->icon('heroicon-m-arrow-down-tray')
+                        ->action(function (Purchase $record) {
+                            $record->load('customer', 'items.sparepart');
+
+                            $data = [
+                                'purchase'              => $record,
+                                'customer'              => $record->customer,
+                                'items'                 => $record->items,
+                                'total_amount'          => $record->total_amount,
+                                'sparepart_warranty_to' => $record->sparepart_warranty_until,
+                            ];
+
+                            $pdf = Pdf::loadView('invoices.purchase', $data);
+
+                            return response()->streamDownload(
+                                fn () => print($pdf->output()),
+                                'nota-purchase-' . $record->id . '.pdf'
+                            );
+                        }),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
