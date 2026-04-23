@@ -19,6 +19,7 @@ class Booking extends Model
         'status',
         'booking_date',
         'finished_at',
+        'service_fee',
         'notes',
     ];
 
@@ -39,8 +40,9 @@ class Booking extends Model
         return $this->hasMany(BookingSparepart::class);
     }
 
-    public function spareparts() {
-        return $this->belongsToMany(Sparepart::class, 'booking_sparepart')->withPivot(['qty', 'price'])->withTimestamps();
+    public function spareparts()
+    {
+        return $this->belongsToMany(Sparepart::class, 'booking_spareparts')->withPivot(['qty', 'price', 'cost_price', 'subtotal']);
     }
 
 }

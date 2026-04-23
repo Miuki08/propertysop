@@ -18,6 +18,23 @@ class Sparepart extends Model
     ];
 
     /**
+     * Generate SKU By system
+     */
+
+    protected static function booted(): void
+    {
+        static::creating(function (Sparepart $sparepart) {
+            if (empty($sparepart->code)) {
+
+                $lastId = Sparepart::max('id') ?? 0;
+                $nextNumber = $lastId + 1;
+
+                $sparepart->code = 'SP-' . str_pad($nextNumber, 4, '0', STR_PAD_LEFT);
+            }
+        });
+    }
+
+    /**
      * One To Many Relation
      */
 
@@ -33,8 +50,9 @@ class Sparepart extends Model
      * Many to Many relation
      */
 
-    public function bookings() {
-        return $this->belongsToMany(Booking::class, 'booking_sparepart')->withPivot(['qty', 'price'])->withTimestamps();
+    public function bookings()
+    {
+        return $this->belongsToMany(Booking::class, 'booking_spareparts')->withPivot(['qty', 'price', 'cost_price', 'subtotal']);
     }
 
     public function purchases() {

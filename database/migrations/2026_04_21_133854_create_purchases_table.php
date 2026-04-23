@@ -15,6 +15,8 @@ return new class extends Migration
             $table->id();
             $table->foreignId('customer_id')->nullable()->constrained()->cascadeOnUpdate()->nullOnDelete();
             $table->date('purchase_date')->nullable();
+            $table->date('service_warranty_until')->nullable();
+            $table->date('sparepart_warranty_until')->nullable();
             $table->decimal('total_amount', 15, 2)->default(0);
             $table->text('notes')->nullable();
             $table->timestamps();

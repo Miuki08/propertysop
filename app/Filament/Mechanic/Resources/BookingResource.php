@@ -53,15 +53,18 @@ class BookingResource extends Resource
 
                     Forms\Components\Section::make('Service Progress')
                         ->schema([
-                            Forms\Components\Select::make('status')
-                            ->label('status')
-                            ->options([
-                                'pending' => 'Pending',
-                                'in_progress' => 'In Progress',
-                                'completed' => 'Completed',
-                                'cancelled' => 'Cancelled',
-                            ])
-                            ->required(),
+                           Forms\Components\Select::make('status')
+                                ->label('Status')
+                                ->options([
+                                    'waiting_queue'     => 'Menunggu Antrean',
+                                    'checking'          => 'Dicek',
+                                    'waiting_sparepart' => 'Menunggu Sparepart',
+                                    'processing'        => 'Dikerjakan',
+                                    'finished'          => 'Selesai',
+                                    'cancelled'         => 'Dibatalkan',
+                                ])
+                                ->default('waiting_queue')
+                                ->required(),
 
                             Forms\Components\DateTimePicker::make('finished_at')
                                 ->label('Finished At')
@@ -101,12 +104,23 @@ class BookingResource extends Resource
                 Tables\Columns\TextColumn::make('status')
                     ->label('Status')
                     ->badge()
+                    ->formatStateUsing(fn (string $state) => match ($state) {
+                        'waiting_queue'     => 'Menunggu Antrean',
+                        'checking'          => 'Dicek',
+                        'waiting_sparepart' => 'Menunggu Sparepart',
+                        'processing'        => 'Dikerjakan',
+                        'finished'          => 'Selesai',
+                        'cancelled'         => 'Dibatalkan',
+                        default             => $state,
+                    })
                     ->color(fn (string $state): string => match ($state) {
-                        'pending' => 'warning',
-                        'in_progress' => 'info',
-                        'completed' => 'success',
-                        'cancelled' => 'danger',
-                        default => 'gray',
+                        'waiting_queue'     => 'gray',
+                        'checking'          => 'info',
+                        'waiting_sparepart' => 'warning',
+                        'processing'        => 'primary',
+                        'finished'          => 'success',
+                        'cancelled'         => 'danger',
+                        default             => 'gray',
                     })
                     ->sortable(),
 

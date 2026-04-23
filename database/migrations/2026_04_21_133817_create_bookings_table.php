@@ -22,6 +22,7 @@ return new class extends Migration
             $table->string('status')->default('pending');
             $table->date('booking_date')->nullable();
             $table->dateTime('finished_at')->nullable();
+            $table->decimal('service_fee', 15, 2)->default(0);
             $table->string('notes')->nullable();
             $table->timestamps();
         });

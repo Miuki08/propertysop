@@ -13,6 +13,8 @@ class Purchase extends Model
         'customer_id',
         'purchase_date',
         'total_amount',
+        'service_warranty_until',
+        'sparepart_warranty_until',
         'notes',
     ];
 
@@ -28,7 +30,8 @@ class Purchase extends Model
         return $this->hasMany(PurchaseItem::class);
     }
 
-    public function spareparts() {
-        return $this->belongsToMany(Sparepart::class, 'purchase_items')->wherePivot(['qty', 'price', 'subtotal'])->withTimestamps();
+    public function spareparts()
+    {
+        return $this->belongsToMany(Sparepart::class, 'purchase_items')->withPivot(['qty', 'price', 'subtotal'])->withTimestamps();
     }
 }

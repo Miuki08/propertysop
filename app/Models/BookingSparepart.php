@@ -14,7 +14,9 @@ class BookingSparepart extends Model
         'booking_id',
         'sparepart_id',
         'qty',
+        'cost_price',
         'price',
+        'subtotal',
     ];
 
     public function booking() {

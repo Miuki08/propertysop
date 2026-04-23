@@ -27,9 +27,13 @@ class SparepartResource extends Resource
                     ->label('Name')
                     ->required()
                     ->maxLength(255),
+                // Forms\Components\TextInput::make('code')
+                //     ->label('Code')
+                //     ->maxLength(255),
                 Forms\Components\TextInput::make('code')
-                    ->label('Code')
-                    ->maxLength(255),
+                        ->label('Code')
+                        ->maxLength(255)
+                        ->placeholder('Kosongkan untuk generate otomatis'),
                 Forms\Components\TextInput::make('stock')
                     ->label('Stock')
                     ->required()
